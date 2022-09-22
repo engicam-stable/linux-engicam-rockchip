@@ -16,7 +16,7 @@
 		     "rockchip,px30";
 
 	chosen {
-		stdout-path = "serial2:115200n8";
+		bootargs = "earlycon=uart8250,mmio32,0xff160000 swiotlb=1 console=ttyS2,115200n8 rw root=PARTUUID=614e0000-0000 rootwait";
 	};
 };
 
