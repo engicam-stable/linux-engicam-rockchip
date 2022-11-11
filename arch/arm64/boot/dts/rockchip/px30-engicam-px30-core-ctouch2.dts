@@ -17,6 +17,30 @@
 		     "rockchip,px30";
 
 	chosen {
-		stdout-path = "serial2:115200n8";
+		bootargs = "earlycon=uart8250,mmio32,0xff160000 swiotlb=1 console=ttyS2,115200n8 rw root=PARTUUID=614e0000-0000 rootwait";
 	};
+
+	regulators{
+		rk809_codec: codec {
+			#sound-dai-cells = <0>;
+			compatible = "rockchip,rk809-codec", "rockchip,rk817-codec";
+			clocks = <&cru SCLK_I2S1_OUT>;
+			clock-names = "mclk";
+			pinctrl-names = "default";
+			pinctrl-0 = <&i2s1_2ch_mclk>;
+			hp-volume = <20>;
+			spk-volume = <3>;
+			status = "okay";
+		};
+	};
+};
+
+/* RS485 */
+&uart0 {
+	status= "okay";
+};
+/* RS232 */
+&uart3 {
+	pinctrl-0 = <&uart3m0_xfer>;
+	status= "okay";
 };

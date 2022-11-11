@@ -12,12 +12,22 @@
 
 / {
 	model = "Engicam PX30.Core EDIMM2.2 Starter Kit";
-	compatible = "engicam,px30-core-edimm2.2", "engicam,px30-core",
-		     "rockchip,px30";
+	compatible = "engicam,px30-core", "rockchip,px30";
 
 	chosen {
 		bootargs = "earlycon=uart8250,mmio32,0xff160000 swiotlb=1 console=ttyS2,115200n8 rw root=PARTUUID=614e0000-0000 rootwait";
 	};
+};
+
+/* RS485 */
+&uart0 {
+	status= "okay";
+};
+
+/* RS232 */
+&uart3 {
+	pinctrl-0 = <&uart3m0_xfer>;
+	status= "okay";
 };
 
 &pinctrl {

@@ -11,51 +11,105 @@
 		mmc2 = &sdio;
 	};
 
-	vcc5v0_sys: vcc5v0-sys {
-		compatible = "regulator-fixed";
-		regulator-name = "vcc5v0_sys";	/* +5V */
-		regulator-always-on;
-		regulator-boot-on;
-		regulator-min-microvolt = <5000000>;
-		regulator-max-microvolt = <5000000>;
+	regulators {
+		compatible = "simple-bus";
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		vcc5v0_sys: vcc5v0-sys {
+			compatible = "regulator-fixed";
+			regulator-name = "vcc5v0_sys";	/* +5V */
+			regulator-always-on;
+			regulator-boot-on;
+			regulator-min-microvolt = <5000000>;
+			regulator-max-microvolt = <5000000>;
+		};
+
+		sdio_pwrseq: sdio-pwrseq {
+			compatible = "mmc-pwrseq-simple";
+			clocks = <&xin32k>;
+			clock-names = "ext_clock";
+			post-power-on-delay-ms = <80>;
+			pinctrl-names = "default";
+			pinctrl-0 = <&wifi_enable_h>;
+		};
+
+		vcc3v3_btreg: vcc3v3-btreg {
+			compatible = "regulator-gpio";
+			enable-active-high;
+			pinctrl-names = "default";
+			pinctrl-0 = <&bt_enable_h>;
+			regulator-name = "btreg-gpio-supply";
+			regulator-min-microvolt = <3300000>;
+			regulator-max-microvolt = <3300000>;
+			regulator-always-on;
+			states = <3300000 0x0>;
+		};
+
+		vcc3v3_rf_aux_mod: vcc3v3-rf-aux-mod {
+			compatible = "regulator-fixed";
+			regulator-name = "vcc3v3_rf_aux_mod";
+			regulator-min-microvolt = <3300000>;
+			regulator-max-microvolt = <3300000>;
+			regulator-always-on;
+			regulator-boot-on;
+			vin-supply = <&vcc5v0_sys>;
+		};
+
+		xin32k: xin32k {
+			compatible = "fixed-clock";
+			#clock-cells = <0>;
+			clock-frequency = <32768>;
+			clock-output-names = "xin32k";
+		};
+
+		vcc_3v3_sgtl: vcc_3v3_sgtl_regulator {
+			compatible = "regulator-fixed";
+			regulator-name = "3v3_sgtl";
+			regulator-always-on;
+			regulator-boot-on;
+			regulator-min-microvolt = <3300000>;
+			regulator-max-microvolt = <3300000>;
+		};
+
+		vcc_1v8_sgtl: vcc_1v8_sgtl_regulator {
+			compatible = "regulator-fixed";
+			regulator-name = "1v8_sgtl";
+			regulator-always-on;
+			regulator-boot-on;
+			regulator-min-microvolt = <1800000>;
+			regulator-max-microvolt = <1800000>;
+		};
 	};
 
-	sdio_pwrseq: sdio-pwrseq {
-		compatible = "mmc-pwrseq-simple";
-		clocks = <&xin32k>;
-		clock-names = "ext_clock";
-		post-power-on-delay-ms = <80>;
-		pinctrl-names = "default";
-		pinctrl-0 = <&wifi_enable_h>;
-	};
+	sound {
+		compatible = "simple-audio-card";
+		simple-audio-card,name = "px30-sgtl5000";
+		simple-audio-card,format = "i2s";
+		simple-audio-card,mclk-fs = <256>;
 
-	vcc3v3_btreg: vcc3v3-btreg {
-		compatible = "regulator-gpio";
-		enable-active-high;
-		pinctrl-names = "default";
-		pinctrl-0 = <&bt_enable_h>;
-		regulator-name = "btreg-gpio-supply";
-		regulator-min-microvolt = <3300000>;
-		regulator-max-microvolt = <3300000>;
-		regulator-always-on;
-		states = <3300000 0x0>;
-	};
+		simple-audio-card,cpu {
+			sound-dai = <&i2s1_2ch>;
+		};
 
-	vcc3v3_rf_aux_mod: vcc3v3-rf-aux-mod {
-		compatible = "regulator-fixed";
-		regulator-name = "vcc3v3_rf_aux_mod";
-		regulator-min-microvolt = <3300000>;
-		regulator-max-microvolt = <3300000>;
-		regulator-always-on;
-		regulator-boot-on;
-		vin-supply = <&vcc5v0_sys>;
+		simple-audio-card,codec {
+			sound-dai = <&sgtl5000>;
+		};
 	};
+};
 
-	xin32k: xin32k {
-		compatible = "fixed-clock";
-		#clock-cells = <0>;
-		clock-frequency = <32768>;
-		clock-output-names = "xin32k";
+&i2c1 {
+	status = "okay";
+
+	sgtl5000: codec@a {
+		compatible = "fsl,sgtl5000";
+		status = "okay";
+		#sound-dai-cells = <0>;
+		reg = <0x0a>;
+		pinctrl-0 = <&i2s1_2ch_mclk>;
+		clocks = <&cru SCLK_I2S1_OUT>;
+		VDDA-supply = <&vcc_3v3_sgtl>;
+		VDDIO-supply = <&vcc_3v3_sgtl>;
 	};
 };
 
