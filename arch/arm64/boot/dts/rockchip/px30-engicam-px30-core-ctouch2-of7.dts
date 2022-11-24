@@ -9,7 +9,7 @@
 #include "px30-engicam-px30-core-ctouch2.dts"
 
 / {
-	model = "Engicam PX30.Core C.TOUCH 2.0 AMP10.1 Open Frame";
+	model = "Engicam PX30.Core C.TOUCH 2.0 10.1 Open Frame";
 	compatible = "engicam,px30-core","rockchip,px30";
 
 	backlight: backlight {
@@ -52,7 +52,7 @@
 	};
 
 	panel {
-		compatible = "ampire,am-1280800n3tzqw-t00h";
+		compatible = "yes-optoelectronics,ytc700tlag-05-201c";
 		backlight = <&backlight>;
 		power-supply = <&vcc3v3_lcd>;
 		data-mapping = "vesa-24";
@@ -101,4 +101,26 @@
 
 &vopl_mmu {
 	status = "okay";
+};
+
+&i2c1 {
+	status = "okay";
+
+	polytouch: edt-ft5x26@38 {
+		compatible = "edt,edt-ft5526";
+		reg = <0x38>;
+		pinctrl-names = "default";
+		pinctrl-0 = <&edt_ft5x06_pins>;
+		interrupt-parent = <&gpio2>;
+		interrupts = <8 IRQ_TYPE_EDGE_FALLING>;
+   };
+};
+
+&pinctrl {
+	politouch {
+        edt_ft5x06_pins:edt-ft5x06-pins {
+            rockchip,pins =
+				<2 RK_PB0 RK_FUNC_GPIO &pcfg_pull_up>;
+        };
+	};
 };
